@@ -1,8 +1,8 @@
 <?php
     // echo "hello2";
-    $con = new mysqli( 'mysql_db', 'root' , 'root' , 'mysql');
-
-    if($con){
+    $conexion = new mysqli( 'mysql_db', 'root' , 'root' , 'servidores');
+    $conexion->set_charset("utf8");
+    if($conexion){
     // echo "Connected !!!";
     ?>
     <script>
@@ -11,6 +11,7 @@
     <?php
     }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -53,27 +54,41 @@
     <div class="container">
         <div class="formulario">
             <h2>Formulario</h2>
-            <?php
-            if ($_SERVER["REQUEST_METHOD"] == "POST") {
-                $usuario = $_POST['usuario'];
-                $contrasena = $_POST['contrasena'];
+            <form method="POST">
 
-                // Aquí puedes realizar la lógica para guardar los datos en una base de datos o mostrarlos en la tabla
-                // Por ejemplo, podrías guardarlos en un archivo CSV, en una base de datos MySQL, etc.
-                echo "$usuario";
-                echo "$contrasena";
-            } else {
-            ?>
-            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                 <label for="usuario">Usuario:</label><br>
                 <input type="text" id="usuario" name="usuario" required><br><br>
+
                 <label for="contrasena">Contraseña:</label><br>
-                <input type="password" id="contrasena" name="contrasena" required><br><br>
-                <input type="submit" value="Registrar">
+                <input type="text" id="contrasena" name="contrasena" required><br><br>
+                
+                <button type="submit" name="btnregistrar" value= "ok" >Registrar</button>
+                <?php
+                 $conexion = new mysqli('mysql_db', 'root', 'root', 'servidores');
+                 $conexion->set_charset("utf8");
+                  if(!empty($_POST["btnregistrar"])){
+                    if((!empty($_POST["usuario"]) and !empty($_POST["contrasena"]) )){
+                      $usuario=$_POST["usuario"];
+                      $contrasena=$_POST["contrasena"];
+
+                      $sql=$conexion->query("insert into usuario(nameUser,password)values('$usuario','$contrasena')");
+                      if ($sql==1) {
+                        echo 'Usuario registrado';
+                      } else {
+                        echo 'Error al registrar';
+                      }
+                    //   echo "usuario: $usuario, ";
+                    //   echo "contrasena: $contrasena";
+
+                    }else{
+                      echo "Noop 2";
+                    }
+                  }else{
+                  }
+
+                ?>
             </form>
-            <?php
-            }
-            ?>
+        
         </div>
         <div class="tabla">
             <h2>Usuarios Registrados</h2>
@@ -87,25 +102,25 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Puedes añadir filas dinámicamente con PHP si es necesario -->
+
+                <?php
+                $sql=$conexion->query(" select * from usuario ");
+
+                while($datos = $sql->fetch_object()){
+                    ?>
                     <tr>
-                        <td>1</td>
-                        <td>usuario1</td>
-                        <td>password1</td>
+                        <td><?= $datos->id ?></td>
+                        <td><?= $datos->nameUser ?></td>
+                        <td><?= $datos->password ?></td>
                         <td>
-                            <button>editar</button>
-                            <button>eliminar</button>
+                            <a href="">Editar</a>
+                            <a href="">Eliminar</a>
                         </td>
                     </tr>
-                    <tr>
-                        <td>1</td>
-                        <td>usuario1</td>
-                        <td>password1</td>
-                        <td>
-                            <button>editar</button>
-                            <button>eliminar</button>
-                        </td>
-                    </tr>
+                   <?php
+                }
+                ?>
+                    
                 </tbody>
             </table>
         </div>
